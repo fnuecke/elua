@@ -77,7 +77,18 @@ local toolchain_list =
     cross_lua = 'float 64',
     cross_lualong = 'int 32',
     version = '--version'
-  }
+  },
+  [ 'riscv-gcc' ] = {
+    compile = 'riscv32-unknown-elf-gcc',
+    link = 'riscv32-unknown-elf-ld',
+    asm = 'riscv32-unknown-elf-gcc',
+    bin = 'riscv32-unknown-elf-objcopy',
+    size = 'riscv32-unknown-elf-size',
+    cross_cpumode = 'little',
+    cross_lua = 'float 64',
+    cross_lualong = 'int 32',
+    version = '--version'
+  },
 }
 
 -- Toolchain Aliases
@@ -96,7 +107,8 @@ local toolchain_map = {
   arm = { 'arm-gcc', 'codesourcery', 'devkitarm', 'arm-eabi-gcc' },
   cortexm = { 'arm-gcc', 'codesourcery', 'devkitarm', 'arm-eabi-gcc' },
   avr32 = { 'avr32-gcc', 'avr32-unknown-none-gcc' },
-  i386 =  { 'i686-gcc' }
+  i386 =  { 'i686-gcc' },
+  riscv = { 'riscv-gcc' },
 }
 
 -- List of platform/CPU combinations
@@ -117,6 +129,7 @@ local platform_list =
   lpc24xx = { cpus = { 'LPC2468' }, arch = 'arm' },
   lpc17xx = { cpus = { 'LPC1768', 'LPC1769' }, arch = 'cortexm' },
   xmc4000 = { cpus = { 'XMC4400F100X512', 'XMC4500F144K1024', 'XMC4500E144K1024', 'XMC4700F144K2048', 'XMC4300F100K256' }, arch = 'cortexm' },
+  sedna = { cpus = { 'SEDNA' }, arch = 'riscv' },
 }
 
 -- Returns the platform of a given CPU
