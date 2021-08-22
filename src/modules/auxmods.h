@@ -61,6 +61,9 @@ LUALIB_API int ( luaopen_i2c )( lua_State *L );
 #define AUXLIB_FS "fs"
 LUALIB_API int ( luaopen_fs )( lua_State *L );
 
+#define AUXLIB_SEDNA    "sedna"
+LUALIB_API int ( luaopen_sedna )( lua_State *L );
+
 // Helper macros
 #define MOD_CHECK_ID( mod, id )\
   if( !platform_ ## mod ## _exists( id ) )\

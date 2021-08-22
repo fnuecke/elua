@@ -13,7 +13,7 @@ return {
     mmcfs = { spi = 0, cs_port = 0, cs_pin = 0 },
   },
   modules = {
-    generic = { 'all_lua', 'bit', 'cpu', 'pack', 'term', 'tmr', 'uart' },
+    generic = { 'all_lua', 'bit', 'cpu', 'pack', 'term', 'tmr', 'uart', 'sedna' },
     platform = { 'riscv' }
   }
 }
