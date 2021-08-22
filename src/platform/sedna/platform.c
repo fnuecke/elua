@@ -9,10 +9,16 @@
 #include <sbi/riscv_encoding.h>
 #include <sbi_utils/serial/uart8250.h>
 
-// ****************************************************************************
-// FDT utility methods
 
 #define INVALID_ADDRESS -1
+
+u32 sedna_dram_top;
+
+static volatile unsigned long uart_addresses[ NUM_UART ] = { INVALID_ADDRESS };
+static volatile unsigned long hdd_address = INVALID_ADDRESS;
+
+// ****************************************************************************
+// FDT utility methods
 
 void* fdt_address = ( void* ) INVALID_ADDRESS;
 
@@ -123,20 +129,49 @@ static unsigned long fdt_uart_base( unsigned id )
   return addr;
 }
 
+static void parse_fdt_uart()
+{
+  int id;
+  for ( id = 0; id < NUM_UART; ++id )
+  {
+    uart_addresses[ id ] = fdt_uart_base( id );
+  }
+}
+
+static void parse_fdt_hdd()
+{
+  int offset, result;
+  u64 addr;
+
+  offset = fdt_node_offset_by_compatible( fdt_address, -1, "sedna,mmc-spi" );
+  if ( offset < 0 )
+    return;
+
+  result = fdt_getaddrrange( fdt_address, offset, &addr, NULL );
+  if ( result < 0 || !addr )
+    return;
+
+  hdd_address = addr;
+}
+
+static void parse_fdt()
+{
+  parse_fdt_uart();
+  parse_fdt_hdd();
+}
+
 // ****************************************************************************
 // Platform initialization
-
-u32 sedna_dram_top;
 
 u32 platform_early_init( void* fdt )
 {
   fdt_address = fdt;
 
+  parse_fdt();
+
   // Since the bootstrapper puts the FDT as far back in memory as possible, and we
   // want to keep the FDT around anyway, we can use that as our top of memory.
-  sedna_dram_top = ( ( u32 )fdt ) & 0xFFFFFFF0;
-
-  // TODO: Parse stuff we need from the FDT once, then throw it away.
+  sedna_dram_top = ( ( u32 )fdt_address ) & 0xFFFFFFF0;
 
   return sedna_dram_top;
 }
@@ -172,10 +207,7 @@ u32 platform_spi_setup( unsigned id, int mode, u32 clock, unsigned cpol, unsigne
   switch ( id )
   {
     case SPI_SDMMC: {
-      if ( mode != PLATFORM_SPI_MASTER )
-        return 0;
-
-      return clock;
+      return clock; // Not really...
     }
   }
 
@@ -184,7 +216,9 @@ u32 platform_spi_setup( unsigned id, int mode, u32 clock, unsigned cpol, unsigne
 
 spi_data_type platform_spi_send_recv( unsigned id, spi_data_type data )
 {
-  return data;
+  spi_data_type result = *(spi_data_type*)hdd_address;
+  *(spi_data_type*)hdd_address = data;
+  return result;
 }
 
 // ****************************************************************************
@@ -199,14 +233,8 @@ pio_type platform_pio_op( unsigned port, pio_type pinmask, int op )
 // ****************************************************************************
 // UART functions
 
-static unsigned long uart_addresses[ NUM_UART ] = { INVALID_ADDRESS };
-
 static unsigned long get_uart_base( unsigned id )
 {
-  if ( id < 0 || id >= NUM_UART )
-    return 0;
-  if ( uart_addresses[ id ] == INVALID_ADDRESS )
-    uart_addresses[ id ] = fdt_uart_base( id );
   return uart_addresses[ id ];
 }
 

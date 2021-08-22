@@ -1551,7 +1551,7 @@ static FRESULT chk_mounted (	/* FR_OK(0): successful, !=0: any error occured */
 
 	fmt = FS_FAT12;										/* Determine the FAT sub type */
 	if (mclst >= 0xFF7) fmt = FS_FAT16;					/* Number of clusters >= 0xFF5 */
-	if (mclst >= 0xFFF7) fmt = FS_FAT32;				/* Number of clusters >= 0xFFF5 */
+	if (mclst >= 0xFFF7 || fs->n_rootdir == 0) fmt = FS_FAT32;				/* Number of clusters >= 0xFFF5 */
 
 	if (fmt == FS_FAT32)
 		fs->dirbase = LD_DWORD(fs->win+BPB_RootClus);	/* Root directory start cluster */
