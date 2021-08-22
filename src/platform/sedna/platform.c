@@ -207,6 +207,8 @@ u32 platform_spi_setup( unsigned id, int mode, u32 clock, unsigned cpol, unsigne
   switch ( id )
   {
     case SPI_SDMMC: {
+      if ( hdd_address == INVALID_ADDRESS )
+        return 0;
       return clock; // Not really...
     }
   }
@@ -216,8 +218,9 @@ u32 platform_spi_setup( unsigned id, int mode, u32 clock, unsigned cpol, unsigne
 
 spi_data_type platform_spi_send_recv( unsigned id, spi_data_type data )
 {
-  spi_data_type result = *(spi_data_type*)hdd_address;
-  *(spi_data_type*)hdd_address = data;
+  if ( hdd_address == INVALID_ADDRESS ) return 0xFF;
+  spi_data_type result = *( spi_data_type* )hdd_address;
+  *( spi_data_type* )hdd_address = data;
   return result;
 }
 
